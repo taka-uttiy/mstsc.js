@@ -41,11 +41,14 @@ module.exports = function (server) {
 				autoLogin : true,
 				screen : infos.screen,
 				locale : infos.locale,
-				logLevel : process.argv[2] || 'INFO'
+				logLevel : process.argv[2] || 'INFO',
+				audio : true
 			}).on('connect', function () {
 				client.emit('rdp-connect');
 			}).on('bitmap', function(bitmap) {
 				client.emit('rdp-bitmap', bitmap);
+			}).on('audio', function(audio) {
+				client.emit('rdp-audio', audio);
 			}).on('close', function() {
 				client.emit('rdp-close');
 			}).on('error', function(err) {

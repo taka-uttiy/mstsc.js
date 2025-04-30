@@ -18,7 +18,10 @@
  */
 
 (function() {
-	
+	/* Reduce processing load */
+	var defInput = Module._malloc(16384);
+	var defOutput = Module._malloc(131072);
+
 	/**
 	 * decompress bitmap from RLE algorithm
 	 * @param	bitmap	{object} bitmap object of bitmap event of node-rdpjs
@@ -43,15 +46,14 @@
 		}
 		
 		var input = new Uint8Array(bitmap.data);
-		var inputPtr = Module._malloc(input.length);
+		var inputPtr = (input.length > 16384) ? Module._malloc(input.length) : defInput;
 		var inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, input.length);
 		inputHeap.set(input);
 		
 		var output_width = bitmap.destRight - bitmap.destLeft + 1;
 		var output_height = bitmap.destBottom - bitmap.destTop + 1;
 		var ouputSize = output_width * output_height * 4;
-		var outputPtr = Module._malloc(ouputSize);
-
+		var outputPtr = (ouputSize > 131072) ? Module._malloc(ouputSize) : defOutput;
 		var outputHeap = new Uint8Array(Module.HEAPU8.buffer, outputPtr, ouputSize);
 
 		var res = Module.ccall(fName,
@@ -62,8 +64,8 @@
 		
 		var output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize);
 		
-		Module._free(inputPtr);
-		Module._free(outputPtr);
+		if (inputPtr != defInput) Module._free(inputPtr);
+		if (outputPtr != defOutput) Module._free(outputPtr);
 		
 		return { width : output_width, height : output_height, data : output };
 	}

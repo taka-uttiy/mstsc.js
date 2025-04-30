@@ -151,8 +151,12 @@
 				console.log('[mstsc.js] connected');
 				self.activeSession = true;
 			}).on('rdp-bitmap', function(bitmap) {
-				console.log('[mstsc.js] bitmap update bpp : ' + bitmap.bitsPerPixel);
+				//console.log('[mstsc.js] bitmap update bpp : ' + bitmap.bitsPerPixel);
 				self.render.update(bitmap);
+			}).on('rdp-audio', function(audio) {
+                //console.log('[mstsc.js] audio : ');
+                //console.log(audio);
+				playAudio(audio);
 			}).on('rdp-close', function() {
 				next(null);
 				console.log('[mstsc.js] close');
@@ -185,3 +189,51 @@
 		}
 	}
 })();
+
+var audioCtx = null;
+var nextPacketTime = 0;
+
+function playAudio(audio) {
+	new Promise(function() {
+		if (audioCtx == null)  audioCtx = new AudioContext();
+
+		// Convert AudioBuffer
+		var maxSampleValue = 128;
+		var datalen = audio.data.byteLength;
+		if (audio.bitsPerSample != 8) {
+			maxSampleValue = 32768;
+			datalen = audio.data.byteLength / 2;
+			fdata = new Int16Array(audio.data);
+		} else {
+			fdata = new Int8Array(audio.data);
+		}
+
+		//  Calculate total number of samples
+		var samples = datalen / audio.channel;
+		var dur = samples / audio.rate;
+		//  Get audio buffer for specified format
+		var audioBuffer = audioCtx.createBuffer(audio.channel, samples, audio.rate);
+		//  Convert each channel
+		for (var channel=0; channel<audio.channel; channel++) {
+			var audioData = audioBuffer.getChannelData(channel);
+			// Fill audio buffer with data for channel
+			var offset = channel;
+			for (var i=0; i<samples; i++) {
+				audioData[i] = fdata[offset] / maxSampleValue;
+				offset += audio.channel;
+			}
+		}
+		delete fdata;
+
+		var audioSrc = audioCtx.createBufferSource();
+		audioSrc.connect(audioCtx.destination);
+		audioSrc.buffer = audioBuffer;
+
+		var cur = audioCtx.currentTime;
+		//console.log( nextPacketTime + "  :  " + cur + "	rdpsnd :  " + audio.timestamp + "	::: samples[" + samples + "]  dur [" + dur + "]" );
+		if (cur > nextPacketTime) nextPacketTime = cur;
+
+		audioSrc.start( nextPacketTime );
+		nextPacketTime += dur;
+	});
+}
