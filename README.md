@@ -34,6 +34,14 @@ Install last dev commit :
 git clone https://github.com/taka-uttiy/mstsc.js
 cd mstsc.js
 npm install
+
+# if you use node-rdpjs with rdpsnd (audio)
+cd node_modules
+rm -f -r node-rdpjs
+git clone https://github.com/taka-uttiy/node-rdpjs
+cd node-rdpjs
+npm install
+
 node server.js
 ```
 

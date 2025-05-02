@@ -1,6 +1,6 @@
 {
-	"name": "mstsc.js",
-	"author": "Sylvain Peyrefitte",
+	"name": "mstsc.js-3",
+	"author": "Takayuki Uchida",
 	"version": "0.2.4",
 	"engines": 
 	[
@@ -10,7 +10,7 @@
 	"license": "AGPL v3.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/citronneur/mstsc.js"
+		"url": "https://github.com/aka-uttiy/mstsc.js"
 	},
 	"main": "server.js",
 	"dependencies": {
