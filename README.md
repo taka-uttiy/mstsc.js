@@ -31,7 +31,7 @@ npm install mstsc.js
 Install last dev commit : 
 
 ```
-git clone https://github.com/citronneur/mstsc.js
+git clone https://github.com/taka-uttiy/mstsc.js
 cd mstsc.js
 npm install
 node server.js
