@@ -24,8 +24,22 @@
 	<script type="text/javascript" src="./js/canvas.js"></script>
     <script language="javascript">
     var client = null;
-    
+	var query_host = null;
+
+	(function() {
+        query=window.location.search;
+        if (query != null && query.length > 0) {
+            var query=query.substring(1, query.length);
+            var ary=query.split('&');
+            for (var i=0 ; i<ary.length; i++) {
+                var prop=ary[i].split('=');
+                if (prop[0] == "host") query_host = prop[1];
+            }
+        }
+    })();
+	
     function load (canvas) {
+		if (query_host != null) document.getElementById("inputIpAddress").value = query_host;
     	client = Mstsc.client.create(Mstsc.$(canvas));
     } 
     
